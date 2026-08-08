@@ -1,0 +1,47 @@
+---
+import { hubState, type HubStation } from '../data/hubRun';
+
+interface Props {
+  hubs: HubStation[];
+}
+
+const { hubs } = Astro.props;
+const microLabel = 'text-[0.58rem] uppercase tracking-[0.08em]';
+
+const staged = hubs.filter((h) => hubState(h) === 'staged').length;
+const planned = hubs.filter((h) => hubState(h) === 'planned').length;
+const pending = hubs.length - staged - planned;
+
+/* the lamp caption states which of the three it is, so the board doesn't rely
+   on colour alone to carry the distinction */
+function caption(hub: HubStation): string {
+  const state = hubState(hub);
+  if (state === 'staged') return `${hub.flown}\u00d7 flown`;
+  if (state === 'planned') return `${hub.planned}\u00d7 booked`;
+  return 'On the day';
+}
+---
+<div class="space-y-3">
+  <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+    <span class={`${microLabel} text-delta-red font-bold`}>Hub status</span>
+    <span class={`${microLabel} text-slate-500 dark:text-slate-500`}>
+      {staged} flown &middot; {planned} booked &middot; {pending} on the day
+    </span>
+  </div>
+
+  <ul class="list-none m-0 p-0 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+    {hubs.map((hub) => (
+      <li
+        class="hub-cell bg-white dark:bg-slate-950 px-3 py-[0.8rem] flex flex-col gap-[0.35rem]"
+        data-state={hubState(hub)}
+      >
+        <span class="flex items-center gap-2">
+          <span class="hub-led" aria-hidden="true"></span>
+          <span class="hub-code text-[1.05rem] font-bold tracking-[0.06em] text-slate-900 dark:text-slate-100">{hub.code}</span>
+        </span>
+        <span class="text-[0.66rem] leading-[1.3] text-slate-500 dark:text-slate-500">{hub.city}</span>
+        <span class={`hub-count ${microLabel}`}>{caption(hub)}</span>
+      </li>
+    ))}
+  </ul>
+</div>

@@ -1,0 +1,19 @@
+---
+import { routeOf, type Sortie } from '../data/hubRun';
+
+interface Props {
+  sortie: Sortie;
+}
+
+const { sortie } = Astro.props;
+const nodes = routeOf(sortie);
+---
+{/* decorative: the leg table below carries the same information, properly
+    labelled, so screen readers get it there rather than twice */}
+<p class="ribbon m-0" aria-hidden="true">
+  {nodes.map((node) => (
+    node.kind === 'stop' ? <b class="ribbon-stop">{node.name}</b>
+    : node.kind === 'seg' ? <i class="ribbon-seg" data-mode={node.mode}></i>
+    : <i class="ribbon-break">//</i>
+  ))}
+</p>

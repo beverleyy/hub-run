@@ -1,0 +1,43 @@
+---
+/* Shared flight-deck theme comes from the main site, checked out as the
+   `theme` submodule. Only hubrun.css is local to this repo. */
+import '../../theme/src/styles/main.css';
+import 'lenis/dist/lenis.css';
+import '../../theme/src/styles/header.css';
+import '../../theme/src/styles/tape.css';
+import '../../theme/src/styles/bottom-tape.css';
+import '../../theme/src/styles/airlines.css';
+import '../styles/hubrun.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+/* BASE_URL is '/' by default but has NO trailing slash when `base` is set in
+   astro.config.mjs, so it can't just be concatenated. Normalise to one. */
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <script is:inline>
+      /* boot Delta before first paint, avoids flash; site.ts owns it after */
+      document.documentElement.setAttribute('data-airline', 'delta');
+      document.documentElement.classList.add('dark');
+    </script>
+  </head>
+  <body>
+    <div class="hud-corner tl"></div>
+    <div class="hud-corner tr"></div>
+    <div class="hud-corner bl"></div>
+    <div class="hud-corner br"></div>
+    <slot />
+  </body>
+</html>

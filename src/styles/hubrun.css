@@ -1,0 +1,293 @@
+/* ============================================================
+   Hub Run — the only stylesheet in this repo.
+
+   Everything shared with the main site (palettes, typography, HUD
+   corners, tick rule, tapes, masthead LEDs, the Tailwind-utility
+   remapping per livery) comes from the `theme` submodule. What's
+   here is either page-specific or something Tailwind can't say:
+   state-driven colour, the :empty struck cell, the table reflow.
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Fonts, re-declared.
+
+   The theme self-hosts these from its own public/fonts/ using absolute
+   paths (/fonts/b612-400.woff2 and friends). Those resolve against the
+   MAIN site, so in this repo they 404 — in dev always, and in production
+   whenever a `base` is set. There's no Google Fonts fallback any more,
+   so the page silently drops to a system monospace.
+
+   These declarations come later in the cascade and go through Vite, so
+   the URLs are rewritten at build time and follow `base`. The theme's
+   rules stay as harmless fallbacks.
+
+   If the theme ever adds a weight, add it here too.
+   ------------------------------------------------------------ */
+@font-face {
+    font-family:'B612';
+    src:url('./fonts/b612-400.woff2') format('woff2');
+    font-weight:400;
+    font-style:normal;
+    font-display:swap;
+}
+@font-face {
+    font-family:'B612';
+    src:url('./fonts/b612-700.woff2') format('woff2');
+    font-weight:700;
+    font-style:normal;
+    font-display:swap;
+}
+@font-face {
+    font-family:'B612 Mono';
+    src:url('./fonts/b612-mono-400.woff2') format('woff2');
+    font-weight:400;
+    font-style:normal;
+    font-display:swap;
+}
+@font-face {
+    font-family:'B612 Mono';
+    src:url('./fonts/b612-mono-700.woff2') format('woff2');
+    font-weight:700;
+    font-style:normal;
+    font-display:swap;
+}
+@font-face {
+    font-family:'Ailerons';
+    src:url('./fonts/ailerons.woff2') format('woff2'),
+        url('./fonts/ailerons.woff') format('woff');
+    font-weight:normal;
+    font-style:normal;
+    font-display:swap;
+}
+
+/* mono for this page's readouts, matching the theme's own mono list */
+.cap-name,
+.cap-state,
+.readout,
+.leg-head,
+.leg-mode,
+.sortie-status {
+    font-family:'B612 Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ============================================================
+   Capability board — three states, and the caption names each
+   one so the distinction never rests on colour alone.
+     trained    a flown trip covers it    solid, lamp lit
+     booked     only a booked trip does   dashed, lamp ringed
+     untrained  nothing reaches it yet    solid muted, lamp dark
+   ============================================================ */
+/* border on the element, not a utility: the theme maps .border-slate-300 to
+   border-color with !important, which would clobber a per-state override */
+.cap-cell {
+    border:2px solid var(--panel-border);
+    transition:border-color 0.15s ease;
+}
+.cap-cell[data-state='trained']  { border-color:var(--c-highlight); }
+.cap-cell[data-state='booked'] { border-style:dashed; border-color:var(--c-highlight); }
+
+.cap-led {
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    flex-shrink:0;
+    background:var(--panel-muted);
+}
+.cap-cell[data-state='trained'] .cap-led {
+    background:var(--c-highlight);
+    box-shadow:0 0 5px 1px color-mix(in srgb, var(--c-highlight) 70%, transparent);
+}
+/* hollow lamp: booked, not yet lit */
+.cap-cell[data-state='booked'] .cap-led {
+    background:transparent;
+    box-shadow:inset 0 0 0 2px var(--c-highlight);
+}
+
+.cap-state { color:var(--panel-muted); }
+.cap-cell[data-state='trained'] .cap-state,
+.cap-cell[data-state='booked'] .cap-state { color:var(--c-highlight); }
+
+/* ============================================================
+   Sortie cards
+     flown      solid panel border
+     planned    dashed muted — not yet flown
+     scheduled  dashed accent — not yet flown, and it's the target
+   ============================================================ */
+.sortie { border:2px solid var(--panel-border); }
+.sortie-status { color:var(--panel-muted); }
+
+.sortie[data-status='planned'] {
+    border-style:dashed;
+    border-color:var(--panel-muted);
+}
+.sortie[data-status='scheduled'] {
+    border-style:dashed;
+    border-color:var(--c-highlight);
+}
+.sortie-status--planned { color:var(--panel-fg); }
+.sortie-status--scheduled { color:var(--c-highlight); }
+
+/* ============================================================
+   Route ribbon — the shape of a trip in one line. The line style
+   between two stops says how the gap was crossed, keyed straight
+   off the Mode column's own values so the two can't disagree.
+
+   Lines take --panel-muted rather than a livery accent: there's
+   one ribbon per card, and they should read as diagram rather
+   than compete with the labels.
+   ============================================================ */
+.ribbon {
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:0.25rem 0.1rem;
+}
+.ribbon-stop {
+    font-family:'B612 Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size:0.7rem;
+    font-weight:700;
+    letter-spacing:0.06em;
+    padding:0.1rem 0.1rem;
+    white-space:nowrap;
+    color:var(--panel-fg);
+}
+.ribbon-seg {
+    position:relative;
+    flex:1 1 1.4rem;
+    min-width:1.3rem;
+    height:6px;
+    margin:0 0.3rem;
+    font-style:normal;
+}
+.ribbon-seg::before {
+    content:'';
+    position:absolute;
+    left:0;
+    right:0;
+    top:50%;
+}
+.ribbon-seg[data-mode='Air']::before  { border-top:1px solid var(--panel-muted); }
+/* sleepers between two rails */
+.ribbon-seg[data-mode='Rail']::before {
+    top:calc(50% - 2px);
+    height:4px;
+    border-top:1px solid var(--panel-muted);
+    border-bottom:1px solid var(--panel-muted);
+    background:repeating-linear-gradient(90deg, var(--panel-muted) 0 1px, transparent 1px 4px);
+}
+.ribbon-seg[data-mode='Sea']::before  { border-top:1px dashed var(--panel-muted); }
+.ribbon-seg[data-mode='Road']::before { border-top:2px dotted var(--panel-muted); }
+
+/* legs that don't chain: arrived one place, left from another */
+.ribbon-break {
+    font-family:'B612 Mono', ui-monospace, SFMono-Regular, monospace;
+    font-style:normal;
+    font-size:0.7rem;
+    padding:0 0.35rem;
+    color:var(--panel-muted);
+    user-select:none;
+}
+
+/* the legend reuses the segment styles at a fixed width */
+.ribbon-key {
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+}
+.ribbon-key .ribbon-seg {
+    flex:0 0 2.2rem;
+    margin:0;
+}
+
+/* ============================================================
+   Leg table
+   ============================================================ */
+.leg-table { table-layout:fixed; }
+.leg-table col:nth-child(1) { width:5.5rem; }
+.leg-table col:nth-child(2) { width:4.5rem; }
+.leg-table col:nth-child(4) { width:8.5rem; }
+.leg-table col:nth-child(5) { width:7rem; }
+
+.leg-head:first-child,
+.leg-cell:first-child { padding-left:1rem; }
+.leg-head:last-child,
+.leg-cell:last-child { padding-right:1rem; }
+@media (min-width: 640px) {
+    .leg-head:first-child,
+    .leg-cell:first-child { padding-left:1.1rem; }
+    .leg-head:last-child,
+    .leg-cell:last-child { padding-right:1.1rem; }
+}
+
+.leg-head { border-bottom:1px solid var(--panel-border); }
+.leg-cell {
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+    padding-right:0.8rem;
+    vertical-align:baseline;
+    border-bottom:1px solid var(--panel-border);
+}
+.leg:last-child .leg-cell { border-bottom:0; }
+.leg:hover .leg-cell { background:var(--panel-alt); }
+
+/* carrier under the flight number */
+.leg-svc small {
+    display:block;
+    font-weight:400;
+    font-size:0.68rem;
+    margin-top:0.1rem;
+}
+
+/* A leg with no aircraft leaves the cell out entirely and it strikes itself,
+   so a rail or road leg never sits in a half-filled row. Planned sorties and
+   the checkride use the same mechanism: services booked, no tails assigned. */
+.leg-eq:empty::after {
+    content:'\2014\2014';
+    color:var(--panel-muted);
+    opacity:0.7;
+    letter-spacing:-0.08em;
+}
+
+/* reflow at the theme's existing 720px breakpoint */
+@media (max-width: 720px) {
+    .leg-table { display:block; }
+    .leg-table colgroup,
+    .leg-table thead { display:none; }
+    .leg-table tbody { display:block; }
+    .leg {
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:0.2rem 0.9rem;
+        padding:0.7rem 1rem 0.75rem;
+        border-bottom:1px solid var(--panel-border);
+    }
+    .leg:last-child { border-bottom:0; }
+    .leg-cell {
+        display:block;
+        padding:0;
+        border-bottom:0;
+    }
+    .leg:hover .leg-cell { background:none; }
+    /* labels come from the markup, not nth-child, so reordering columns
+       cannot silently mislabel a cell */
+    .leg-cell::before {
+        content:attr(data-l);
+        display:block;
+        font-size:0.54rem;
+        font-weight:700;
+        letter-spacing:0.09em;
+        text-transform:uppercase;
+        color:var(--panel-muted);
+    }
+    .leg-route { grid-column:1 / -1; }
+}
+
+/* ------------------------------------------------------------
+   No per-livery overrides here on purpose.
+
+   The theme resolves which palette colour can carry a loud accent for each
+   livery by remapping --c-highlight (Southwest promotes its red because the
+   yellow dies on its navy panel; United's furniture takes the sky blue via
+   --c-chrome). Consuming the role token means this page follows all four
+   liveries with no !important patches.
+   ------------------------------------------------------------ */

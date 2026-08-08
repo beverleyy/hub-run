@@ -1,0 +1,179 @@
+---
+import Layout from '../layouts/Layout.astro';
+import AltitudeTape from '../../theme/src/components/AltitudeTape.astro';
+import BottomTape from '../../theme/src/components/BottomTape.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import CapabilityBoard from '../components/CapabilityBoard.astro';
+import SortieCard from '../components/SortieCard.astro';
+import { hubRunTape, sorties, checkride, runTarget, progress, usedModes } from '../data/hubRun';
+
+const section = 'py-14 px-6 transition-colors';
+const heading = 'text-3xl font-bold text-delta-navy dark:text-white uppercase tracking-wider';
+const microLabel = 'text-[0.58rem] uppercase tracking-[0.08em]';
+/* border-t per row rather than divide-y: the theme remaps border-slate-300 and
+   dark:border-slate-800 but only dark:divide-slate-800, so divide-y left light
+   liveries with an unthemed rule. first:border-t-0 drops the top edge. */
+const row = 'px-4 py-[0.8rem] flex items-baseline justify-between gap-3 border-t border-slate-300 dark:border-slate-800 first:border-t-0';
+const dt = `${microLabel} text-delta-red font-bold`;
+const dd = 'm-0 text-[0.82rem] font-bold text-slate-900 dark:text-slate-100';
+---
+<Layout
+  title="Endurance Log — Beverley Yeo"
+  description="Endurance travel training: long days, big time shifts, unprotected connections. Current target is the UA 7 Hub Run."
+>
+  <SiteHeader />
+  <AltitudeTape sections={hubRunTape} />
+  <BottomTape sections={hubRunTape} />
+
+  <!-- ============ OBJECTIVE ============ -->
+  <section
+    id="objective"
+    data-tape-section
+    data-tape-label="Objective"
+    style="background-color:var(--panel-bg);"
+    class={`${section} pt-24 sm:pt-28`}
+  >
+    <div class="max-w-7xl mx-auto space-y-8">
+      <div class="border-l-2 border-delta-red pl-4">
+        <span class={`block ${microLabel} text-delta-red font-bold mb-1`}>Training log</span>
+        <h1 class={heading}>Endurance Log</h1>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] gap-6 lg:gap-10">
+        <div class="space-y-4 text-[0.88rem] leading-[1.7] text-slate-900 dark:text-slate-100">
+          <p class="m-0">
+            Trips taken to find out how much travel I can absorb before something gives.
+            Not sightseeing and not efficient &mdash; each one overshoots on a single
+            dimension so the others start to feel ordinary.
+          </p>
+          <p class="m-0 text-slate-500 dark:text-slate-500">
+            No trip trains everything. One stacks days and carriers, another stacks
+            departures into a single afternoon, another drags the clock nine hours and
+            back. What&rsquo;s recorded here is which dimension each one worked on, and
+            which are still only booked rather than done. Legs that aren&rsquo;t flights
+            get the same line as the ones that are &mdash; the log doesn&rsquo;t assume an
+            aeroplane, it records whatever carried me.
+          </p>
+          <p class="m-0 text-slate-500 dark:text-slate-500">
+            The current target is the {runTarget.name}: {runTarget.legs} sectors, seven
+            hubs, one calendar day. It sits at the end of the log as the thing all of
+            this is pointing at, but it isn&rsquo;t the only reason to go.
+          </p>
+        </div>
+
+        <dl class="m-0 border-2 border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-950">
+          <div class={row}>
+            <dt class={dt}>Current target</dt>
+            <dd class={dd}>{runTarget.name}</dd>
+          </div>
+          <div class={row}>
+            <dt class={dt}>Target date</dt>
+            <dd class={dd}>{runTarget.date}</dd>
+          </div>
+          <div class={row}>
+            <dt class={dt}>Trips</dt>
+            <dd class={dd}>{progress.flownCount} flown, {progress.bookedCount} booked</dd>
+          </div>
+          <div class={row}>
+            <dt class={dt}>Most legs in a day</dt>
+            <dd class={dd}>
+              {progress.peakDayFlown ?? 0} flown{progress.peakDayBooked ? `, ${progress.peakDayBooked} booked` : ''}
+            </dd>
+          </div>
+          <div class={row}>
+            <dt class={dt}>Biggest time shift</dt>
+            <dd class={dd}>
+              {progress.tzFlown ? `+${progress.tzFlown} h` : '\u2014'}{progress.tzBooked ? ` flown, +${progress.tzBooked} h booked` : ''}
+            </dd>
+          </div>
+          <div class={row}>
+            <dt class={dt}>Carriers in one trip</dt>
+            <dd class={dd}>{progress.carriersFlown ?? '\u2014'}</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CAPABILITY ============ -->
+  <section
+    id="capability"
+    data-tape-section
+    data-tape-label="Capability"
+    style="background-color:var(--panel-bg);"
+    class={section}
+  >
+    <div class="max-w-7xl mx-auto space-y-8">
+      <div class="tick-rule"></div>
+      <div class="border-l-2 border-delta-red pl-4">
+        <h2 class={heading}>Capability</h2>
+      </div>
+      <CapabilityBoard />
+      <p class="m-0 text-[0.8rem] leading-[1.6] text-slate-500 dark:text-slate-500 max-w-3xl">
+        A lit lamp is something a completed trip has already put me through. A ringed one
+        is booked but hasn&rsquo;t happened. Dark means nothing on the log reaches it yet
+        &mdash; which is currently true of the one thing the hub run is entirely made of,
+        so that&rsquo;s the gap worth closing next.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ LOG ============ -->
+  <section
+    id="log"
+    data-tape-section
+    data-tape-label="Log"
+    style="background-color:var(--panel-bg);"
+    class={section}
+  >
+    <div class="max-w-7xl mx-auto space-y-8">
+      <div class="tick-rule"></div>
+      <div class="border-l-2 border-delta-red pl-4">
+        <h2 class={heading}>Log</h2>
+      </div>
+
+      <!-- only the modes actually used, derived from the legs -->
+      <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+        <span class={`${microLabel} text-delta-red font-bold`}>How to read a route</span>
+        {usedModes.map((mode) => (
+          <span class="ribbon-key">
+            <i class="ribbon-seg" data-mode={mode} aria-hidden="true"></i>
+            <span class={`${microLabel} text-slate-500 dark:text-slate-500`}>{mode}</span>
+          </span>
+        ))}
+      </div>
+
+      <!-- oldest first, so the page reads forwards into the target -->
+      <div class="space-y-4">
+        {sorties.map((sortie) => <SortieCard sortie={sortie} />)}
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TARGET ============ -->
+  <section
+    id="target"
+    data-tape-section
+    data-tape-label="Target"
+    style="background-color:var(--panel-bg);"
+    class={section}
+  >
+    <div class="max-w-7xl mx-auto space-y-8">
+      <div class="tick-rule"></div>
+      <div class="border-l-2 border-delta-red pl-4">
+        <h2 class={heading}>Target</h2>
+      </div>
+
+      <p class="m-0 text-[0.88rem] leading-[1.7] text-slate-900 dark:text-slate-100 max-w-3xl">
+        Seven hubs, one day, one carrier. The routing is booked; the aircraft column is struck on every line because with the high demand for the 7 Hub Run, United has been upgauging aircrafts.
+      </p>
+
+      <SortieCard sortie={checkride} />
+    </div>
+  </section>
+
+  <SiteFooter />
+
+  <script src="../../theme/src/scripts/site.ts"></script>
+</Layout>

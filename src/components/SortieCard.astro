@@ -1,0 +1,117 @@
+---
+import RouteRibbon from './RouteRibbon.astro';
+import {
+  capabilities,
+  sortieCarriers,
+  sortieDays,
+  type Sortie,
+} from '../data/hubRun';
+
+interface Props {
+  sortie: Sortie;
+}
+
+const { sortie } = Astro.props;
+
+const statusLabel: Record<Sortie['status'], string> = {
+  flown: 'Flown',
+  planned: 'Booked',
+  scheduled: 'Target',
+};
+
+/* Three of the four come off the leg list, so they can't disagree with the
+   table underneath. Days against Legs already carries the density story
+   (1 day / 3 legs reads dense; 3 days / 3 legs reads spread), so there's no
+   separate peak-per-day figure here — the objective panel derives that. */
+const stats: { label: string; value: string }[] = [
+  { label: 'Days', value: String(sortieDays(sortie)) },
+  { label: 'Legs', value: String(sortie.legs.length) },
+  { label: 'Time shift', value: sortie.tzShift === 0 ? 'None' : `+${sortie.tzShift} h` },
+  { label: 'Carriers', value: String(sortieCarriers(sortie)) },
+];
+
+const trainsLabels = sortie.trains
+  .map((id) => capabilities.find((c) => c.id === id)?.label)
+  .filter(Boolean);
+
+const microLabel = 'text-[0.58rem] uppercase tracking-[0.08em]';
+const pad = 'px-4 sm:px-[1.1rem]';
+const th = 'leg-head text-left font-bold text-[0.56rem] uppercase tracking-[0.09em] text-slate-500 dark:text-slate-500 py-[0.4rem]';
+---
+<article
+  class="sortie bg-white dark:bg-slate-950"
+  data-status={sortie.status}
+  aria-labelledby={`${sortie.id}-title`}
+>
+  <header class={`flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 ${pad} py-[0.9rem] border-b border-slate-300 dark:border-slate-800`}>
+    <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 min-w-0">
+      <span class={`${microLabel} font-bold text-delta-red`}>{sortie.ref}</span>
+      <h3
+        id={`${sortie.id}-title`}
+        class="m-0 text-[0.95rem] font-bold uppercase tracking-[0.02em] text-slate-900 dark:text-slate-100"
+      >{sortie.title}</h3>
+    </div>
+    <div class="flex items-baseline gap-3">
+      <span class={`${microLabel} text-slate-500 dark:text-slate-500`}>{sortie.dates}</span>
+      <span class={`sortie-status sortie-status--${sortie.status} ${microLabel} font-bold`}>{statusLabel[sortie.status]}</span>
+    </div>
+  </header>
+
+  {/* shape first, then the explanation */}
+  <div class={`${pad} py-[0.85rem] border-b border-slate-300 dark:border-slate-800`}>
+    <RouteRibbon sortie={sortie} />
+  </div>
+
+  <p class={`m-0 ${pad} pt-[0.85rem] text-[0.82rem] leading-[1.6] text-slate-900 dark:text-slate-100`}>
+    {sortie.objective}
+  </p>
+
+  {trainsLabels.length > 0 && (
+    <div class={`${pad} pt-[0.85rem] flex flex-wrap items-center gap-2`}>
+      <span class={`${microLabel} text-delta-red font-bold`}>Trains</span>
+      {trainsLabels.map((label) => (
+        <span class="keyword-chip">{label}</span>
+      ))}
+    </div>
+  )}
+
+  <dl class={`m-0 ${pad} pt-[0.9rem] pb-[0.95rem] flex flex-wrap gap-x-8 gap-y-3`}>
+    {stats.map((stat) => (
+      <div>
+        <dt class={`${microLabel} text-delta-red font-bold mb-[0.15rem]`}>{stat.label}</dt>
+        <dd class="m-0 readout text-[1.2rem] font-bold leading-none text-slate-900 dark:text-slate-100">{stat.value}</dd>
+      </div>
+    ))}
+  </dl>
+
+  <table class="leg-table w-full border-collapse border-t border-slate-300 dark:border-slate-800">
+    <colgroup><col /><col /><col /><col /><col /></colgroup>
+    <thead>
+      <tr>
+        <th scope="col" class={th}>Date</th>
+        <th scope="col" class={th}>Mode</th>
+        <th scope="col" class={th}>From &mdash; To</th>
+        <th scope="col" class={th}>Service</th>
+        <th scope="col" class="leg-head text-left font-bold text-[0.56rem] uppercase tracking-[0.09em] text-delta-red py-[0.4rem]">Aircraft</th>
+      </tr>
+    </thead>
+    <tbody>
+      {sortie.legs.map((leg) => (
+        <tr class="leg">
+          <td data-l="Date" class="leg-cell text-[0.76rem] text-slate-500 dark:text-slate-500">{leg.date}</td>
+          <td data-l="Mode" class={`leg-cell leg-mode ${microLabel} font-bold text-slate-900 dark:text-slate-100`}>{leg.mode}</td>
+          <td data-l="From — To" class="leg-cell leg-route text-[0.8rem] text-slate-900 dark:text-slate-100">
+            <span class="font-bold tracking-[0.03em]">{leg.from}</span>
+            <span class="text-slate-500 dark:text-slate-500 px-[0.3em]">&rarr;</span>
+            <span class="font-bold tracking-[0.03em]">{leg.to}</span>
+          </td>
+          <td data-l="Service" class="leg-cell leg-svc text-[0.8rem] font-bold text-slate-900 dark:text-slate-100">
+            {leg.service}
+            {leg.carrier && <small class="text-slate-500 dark:text-slate-500">{leg.carrier}</small>}
+          </td>
+          <td data-l="Aircraft" class="leg-cell leg-eq text-[0.8rem] text-slate-500 dark:text-slate-500">{leg.equipment}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</article>
