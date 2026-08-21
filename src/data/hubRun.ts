@@ -158,7 +158,7 @@ export const sorties: Sortie[] = [
     tzShift: 9,
     trains: ['long-haul', 'timezone'],
     legs: [
-      { date: '16 Oct', mode: 'Air', from: 'SFO', to: 'FRA', service: 'LH 455', carrier: 'Lufthansa', equipment: '747-8I' },
+      { date: '16-17 Oct', mode: 'Air', from: 'SFO', to: 'FRA', service: 'LH 455', carrier: 'Lufthansa', equipment: '747-8I' },
       { date: '18 Oct', mode: 'Air', from: 'FRA', to: 'IAD', service: 'LH 418', carrier: 'Lufthansa', equipment: 'A340-600' },
       { date: '18 Oct', mode: 'Air', from: 'IAD', to: 'SFO', service: 'UA 367', carrier: 'United', equipment: '737-9' },
     ],
@@ -191,22 +191,27 @@ export const checkride: Sortie = {
    Only tzShift is hand-entered. Days, legs and carriers all come from the leg
    list, so they can't drift out of step with it. */
 
-const MONTH_START_DAY = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
- 
-function dayOfYear(dateStr: string): number {
-  const match = /^(\d{1,2})\s+([A-Za-z]{3})/.exec(dateStr.trim());
-  if (!match) {
-    throw new Error(`Leg date "${dateStr}" isn't in the "D MMM" format (e.g. "16 Oct") — can't compute a day span from it.`);
-  }
-  const month = MONTHS.indexOf(match[2].toLowerCase());
-  if (month === -1) {
-    throw new Error(`Leg date "${dateStr}" has an unrecognised month.`);
-  }
-  return MONTH_START_DAY[month] + Number(match[1]);
-}
-
 export function sortieDays(s: Sortie): number {
+  const MONTH_START_DAY = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+  const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+ 
+  /* Accepts "16 Oct" and also an overnight range like "05-06 May" or
+     "5–6 May" (hyphen or en dash) — an overnight leg keeps its full range in
+     the displayed date, but the SPAN calculation anchors on the departure
+     day (the first number), matching how flights are conventionally dated
+     by their departure regardless of when they land. */
+  function dayOfYear(dateStr: string): number {
+    const match = /^(\d{1,2})(?:\s*[-–]\s*\d{1,2})?\s+([A-Za-z]{3})/.exec(dateStr.trim());
+    if (!match) {
+      throw new Error(`Leg date "${dateStr}" isn't in the "D MMM" or "D-D MMM" format (e.g. "16 Oct" or "16-17 Oct") — can't compute a day span from it.`);
+    }
+    const month = MONTHS.indexOf(match[2].toLowerCase());
+    if (month === -1) {
+      throw new Error(`Leg date "${dateStr}" has an unrecognised month.`);
+    }
+    return MONTH_START_DAY[month] + Number(match[1]);
+  }
+ 
   const ordinals = s.legs.map((l) => dayOfYear(l.date));
   return Math.max(...ordinals) - Math.min(...ordinals) + 1;
 }
