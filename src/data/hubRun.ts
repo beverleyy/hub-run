@@ -154,13 +154,13 @@ export const sorties: Sortie[] = [
     title: 'Farewell to the Queen',
     status: 'planned',
     objective:
-      "Lufthansa is replacing their Queens with A350's, so this is farewell. The A380 and puddle jumper 787 were coincidences. Nine hours of shift, an eleven-hour sector each way, and a short domestic hop wedged in the middle while thoroughly jet-lagged. Single carrier throughout, which makes this the easiest of the three on paper and the hardest in the body.",
+      'Booked around two legs: Flying Lufthansa\u2019s 747 before they end passenger 747 service at SFO, and then catching their last scheduled A340-600 service to North America, on the very last day the type flies anywhere on the continent.',
     tzShift: 9,
     trains: ['long-haul', 'timezone'],
     legs: [
-      { date: '16 Oct', mode: 'Air', from: 'SFO', to: 'FRA', service: 'LH 455', carrier: 'Lufthansa', equipment: '747-8i' },
-      { date: '18 Oct', mode: 'Air', from: 'FRA', to: 'MUC', service: 'LH 106', carrier: 'Lufthansa', equipment: '787-9' },
-      { date: '18 Oct', mode: 'Air', from: 'MUC', to: 'SFO', service: 'LH 458', carrier: 'Lufthansa', equipment: 'A380-800' },
+      { date: '16 Oct', mode: 'Air', from: 'SFO', to: 'FRA', service: 'LH 455', carrier: 'Lufthansa', equipment: '747-8I' },
+      { date: '18 Oct', mode: 'Air', from: 'FRA', to: 'IAD', service: 'LH 418', carrier: 'Lufthansa', equipment: 'A340-600' },
+      { date: '18 Oct', mode: 'Air', from: 'IAD', to: 'SFO', service: 'UA 367', carrier: 'United', equipment: '737-9' },
     ],
   },
 ];
@@ -192,7 +192,8 @@ export const checkride: Sortie = {
    list, so they can't drift out of step with it. */
 
 export function sortieDays(s: Sortie): number {
-  return new Set(s.legs.map((l) => l.date)).size;
+  const ordinals = s.legs.map((l) => dayOfYear(l.date));
+  return Math.max(...ordinals) - Math.min(...ordinals) + 1;
 }
 
 export function sortieCarriers(s: Sortie): number {
@@ -272,3 +273,4 @@ export const progress = {
   tzBooked: best(bookedSorties, (s) => s.tzShift),
   carriersFlown: best(flownSorties, sortieCarriers),
 };
+

@@ -28,9 +28,35 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
     <title>{title}</title>
     <meta name="description" content={description} />
     <script is:inline>
-      /* boot Delta before first paint, avoids flash; site.ts owns it after */
-      document.documentElement.setAttribute('data-airline', 'delta');
-      document.documentElement.classList.add('dark');
+      /* Resolve panel state before first paint, matching the main site's own
+         boot script exactly (theme/src/layouts/Layout.astro) — same
+         localStorage key, same OS-preference fallback, same eventual default
+         (SIA + dark, not Delta). site.ts reads lightsOn/gainOn off the
+         data-panel-lights / data-panel-gain attributes set here, so this has
+         to stay in step with upstream or the two sites disagree on defaults
+         and, on a shared origin, on whichever livery the visitor last chose. */
+      (function () {
+        var root = document.documentElement;
+        var lights = false;
+        var gain = false;
+        try {
+          var saved = localStorage.getItem('panel-state');
+          if (saved) {
+            var s = JSON.parse(saved);
+            lights = !!s.lights;
+            gain = !!s.gain;
+          } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+            lights = true;
+            gain = true;
+          }
+        } catch (e) {
+          /* private mode or blocked storage; defaults are fine */
+        }
+        root.setAttribute('data-airline', lights ? (gain ? 'united' : 'american') : (gain ? 'delta' : 'sia'));
+        root.classList.toggle('dark', !lights);
+        root.dataset.panelLights = lights ? 'on' : 'off';
+        root.dataset.panelGain = gain ? 'on' : 'off';
+      })();
     </script>
   </head>
   <body>
