@@ -191,6 +191,21 @@ export const checkride: Sortie = {
    Only tzShift is hand-entered. Days, legs and carriers all come from the leg
    list, so they can't drift out of step with it. */
 
+const MONTH_START_DAY = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+ 
+function dayOfYear(dateStr: string): number {
+  const match = /^(\d{1,2})\s+([A-Za-z]{3})/.exec(dateStr.trim());
+  if (!match) {
+    throw new Error(`Leg date "${dateStr}" isn't in the "D MMM" format (e.g. "16 Oct") — can't compute a day span from it.`);
+  }
+  const month = MONTHS.indexOf(match[2].toLowerCase());
+  if (month === -1) {
+    throw new Error(`Leg date "${dateStr}" has an unrecognised month.`);
+  }
+  return MONTH_START_DAY[month] + Number(match[1]);
+}
+
 export function sortieDays(s: Sortie): number {
   const ordinals = s.legs.map((l) => dayOfYear(l.date));
   return Math.max(...ordinals) - Math.min(...ordinals) + 1;
