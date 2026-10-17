@@ -192,16 +192,16 @@ export const checkride: Sortie = {
   title: runTarget.name,
   status: 'scheduled',
   objective:
-    'All seven United hubs inside one calendar day, ending where it started. Seven sectors, six connections, one carrier, no scheduled overnight. Aircraft are whatever United puts on the gate that morning.',
+    'All seven United hubs inside one calendar day, ending where it started. Seven sectors, six connections, one carrier, no scheduled overnight. Aircraft are whatever United has scheduled now, but they might upgauge as the date draws nearer.',
   tzShift: runTarget.tzShift,
   trains: ['seven-sectors', 'sector-density'],
   legs: [
-    { date: '05 Jun', mode: 'Air', from: 'EWR', to: 'IAD', service: 'UA 1366', carrier: 'United' },
-    { date: '05 Jun', mode: 'Air', from: 'IAD', to: 'ORD', service: 'UA 1775', carrier: 'United' },
-    { date: '05 Jun', mode: 'Air', from: 'ORD', to: 'IAH', service: 'UA 2212', carrier: 'United' },
-    { date: '05 Jun', mode: 'Air', from: 'IAH', to: 'DEN', service: 'UA 2767', carrier: 'United' },
-    { date: '05 Jun', mode: 'Air', from: 'DEN', to: 'SFO', service: 'UA 1007', carrier: 'United' },
-    { date: '05 Jun', mode: 'Air', from: 'SFO', to: 'LAX', service: 'UA 1174', carrier: 'United' },
+    { date: '05 Jun', mode: 'Air', from: 'EWR', to: 'IAD', service: 'UA 1366', carrier: 'United', equipment: 'B739' },
+    { date: '05 Jun', mode: 'Air', from: 'IAD', to: 'ORD', service: 'UA 1775', carrier: 'United', equipment: 'B739' },
+    { date: '05 Jun', mode: 'Air', from: 'ORD', to: 'IAH', service: 'UA 2212', carrier: 'United', equipment: 'A21N' },
+    { date: '05 Jun', mode: 'Air', from: 'IAH', to: 'DEN', service: 'UA 1586', carrier: 'United', equipment: 'A21N' },
+    { date: '05 Jun', mode: 'Air', from: 'DEN', to: 'SFO', service: 'UA 1007', carrier: 'United', equipment: 'A21N' },
+    { date: '05 Jun', mode: 'Air', from: 'SFO', to: 'LAX', service: 'UA 2862', carrier: 'United', equipment: 'B738' },
   ],
 };
 
