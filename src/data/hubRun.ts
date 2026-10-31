@@ -18,8 +18,10 @@ export type Capability =
   | 'timezone'
   | 'multi-carrier'
   | 'long-haul'
+  | 'redeye'
   | 'seven-sectors'
-  | 'stopover-chain';
+  | 'stopover-chain'
+  | 'short-notice';
 
 export const capabilities: { id: Capability; label: string; note: string }[] = [
   { id: 'sector-density', label: 'Legs in a day', note: 'Several departures between one sunrise and the next' },
@@ -29,6 +31,7 @@ export const capabilities: { id: Capability; label: string; note: string }[] = [
   { id: 'redeye', 'label': 'Red-eye', note: 'Overnight sectors that replace sleeping in a bed' },
   { id: 'seven-sectors', label: 'Seven in a day', note: 'What the hub run actually asks for' },
   { id: 'stopover-chain', label: 'Stopover chain', note: 'Short domestic hops threaded around a long-haul turnaround' },
+  { id: 'short-notice', label: 'Short notice', note: 'Last-second trips booked at the very last minute' },
 ];
 
 export interface SortieLeg {
@@ -124,7 +127,7 @@ export const sorties: Sortie[] = [
     objective:
       'Los Alamos was too isolating, so I turned my rental car return into an entire trip. Deliberately booked as three separate tickets. One leg a day, each on a different carrier, dragging the clock three hours east and then all the way back in one hop. Ah, and I flew the first Delta leg in Delta First, and stuck a SkyPriority label on an empty cardboard box.',
     tzShift: 3,
-    trains: ['timezone', 'multi-carrier', 'redeye'],
+    trains: ['timezone', 'multi-carrier', 'redeye', 'short-notice'],
     legs: [
       { date: '31 Jul', mode: 'Air', from: 'ABQ', to: 'LAX', service: 'DL 4091', carrier: 'Delta', equipment: 'E75L' },
       { date: '31 Jul', mode: 'Air', from: 'LAX', to: 'SFO', service: 'DL 2986', carrier: 'Delta', equipment: 'B739'},
@@ -144,7 +147,6 @@ export const sorties: Sortie[] = [
     trains: ['sector-density'],
     legs: [
       { date: '19 Sep', mode: 'Air', from: 'SFO', to: 'LAX', service: 'UA 1260', carrier: 'United', equipment: 'B39M'},
-      { date: '19 Sep', mode: 'Road', from: 'LAX', to: 'BUR', service: 'Rideshare' },
       { date: '19 Sep', mode: 'Air', from: 'BUR', to: 'SFO', service: 'UA 5380', carrier: 'United', equipment: 'E75L' },
     ],
   },
@@ -152,7 +154,7 @@ export const sorties: Sortie[] = [
     id: 'trip-04',
     ref: 'Trip 04',
     dates: '16 \u2014 18 October 2026',
-    title: 'Ode to the quadjet (farewell to the Queen)',
+    title: 'Ode to the quadjet',
     status: 'flown',
     objective:
       'Booked around two quadjets: Catching an A340-600 before Lufthansa permanently retires the type on 18 Oct, and then flying their 747 before they end passenger 747 service at SFO on 25 Oct. A few days of buffer in case there\'s a plane swap, and Mechanicon in the middle.',
@@ -167,11 +169,26 @@ export const sorties: Sortie[] = [
   {
     id: 'trip-05',
     ref: 'Trip 05',
-    dates: '25-28 April 2027',
+    dates: '26 \u2014 30 October 2026',
     title: 'Unfinished business',
+    status: 'flown',
+    objective:
+      'Technically a business trip, but the sheer audacity of my boss to ask me to fly transcon with literally 1 week\'s notice and needing a DC do-over after spending my previous DC layover in the IAD United Club after tearing some ligaments 4 days before during Fleet Week. Redeye so I could attend the keeb meet in SF on the Monday but still make the FAA meeting on the Tuesday, and flying on my first B752 back from DCA so the UA baggage handlers can lose the poster tube and ask me if it has wheels.',
+    tzShift: 3,
+    trains: ['timezone', 'redeye', 'short-notice'],
+    legs: [
+      { date: '26-27 Oct', mode: 'Air', from: 'SFO', to: 'IAD', service: 'UA 2111', carrier: 'United', equipment: 'B39M' },
+      { date: '30 Oct', mode: 'Air', from: 'DCA', to: 'SFO', service: 'UA 368', carrier: 'United', equipment: 'B752' },
+    ],
+  },
+  {
+    id: 'trip-06',
+    ref: 'Trip 06',
+    dates: '26 \u2014 28 April 2027',
+    title: 'Big Beautiful Beluga',
     status: 'planned',
     objective:
-      'Tore some ankle ligaments during fleet week 4 days before the previous trip and spent the DC layover in the IAD United Club, so I need a DC do-over. Secondary objectives: Lufthansa A380 to complete my quadjet set, and the inaugural UA222 to Toulouse for some Beluga spotting.',
+      'Still need an A380 to complete my quadjet set, this seems like a good time to fly one. Secondary objective: inaugural UA222 to Toulouse for some "avgeek activities" and Beluga spotting.',
     tzShift: 9,
     trains: ['long-haul', 'timezone', 'sector-density', 'redeye'],
     legs: [
