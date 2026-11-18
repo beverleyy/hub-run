@@ -125,7 +125,7 @@ export const sorties: Sortie[] = [
     title: '3 days, 3 timezones, 3 airlines (3 planemakers)',
     status: 'flown',
     objective:
-      'Los Alamos was too isolating, so I turned my rental car return into an entire trip. Deliberately booked as three separate tickets. One leg a day, each on a different carrier, dragging the clock three hours east and then all the way back in one hop. Ah, and I flew the first Delta leg in Delta First, and stuck a SkyPriority label on an empty cardboard box.',
+      'Los Alamos was too isolating, so I turned my rental car return into an entire trip. Deliberately booked as three separate tickets. One leg a day, each on a different carrier, with a 4.5-hour maintenance delay that deposited 20k miles in my brand new AAdvantage account. Ah, and I flew the first Delta leg in Delta First, and stuck a SkyPriority label on an empty cardboard box.',
     tzShift: 3,
     trains: ['timezone', 'multi-carrier', 'redeye', 'short-notice'],
     legs: [
@@ -184,6 +184,21 @@ export const sorties: Sortie[] = [
   {
     id: 'trip-06',
     ref: 'Trip 06',
+    dates: '16 \u2014 17 November 2026',
+    title: 'Proof of concept 2 - Electric Boogaloo',
+    status: 'flown',
+    objective:
+      'Drinking buddy and fellow avgeek\'s first time in Seattle gave me a perfect excuse for a second trip to the Museum of Flight, so I spent the 20k miles from the 3x3x3 trip on a roundtrip saver award without telling my boss.',
+    tzShift: 0,
+    trains: ['short-notice'],
+    legs: [
+      { date: '16 Oct', mode: 'Air', from: 'SJC', to: 'SEA', service: 'AS 745', carrier: 'Alaska', equipment: 'B38M' },
+      { date: '17 Oct', mode: 'Air', from: 'SEA', to: 'SFO', service: 'AS 680', carrier: 'Alaska', equipment: 'B739' },
+    ],
+  },
+  {
+    id: 'trip-07',
+    ref: 'Trip 07',
     dates: '26 \u2014 28 April 2027',
     title: 'Big Beautiful Beluga',
     status: 'planned',
